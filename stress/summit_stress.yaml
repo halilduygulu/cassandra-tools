@@ -1,0 +1,67 @@
+#
+# Keyspace info
+#
+keyspace: summit_stress
+
+#
+# The CQL for creating a table you wish to stress (optional if it already exists)
+#
+keyspace_definition: |
+ CREATE KEYSPACE summit_stress WITH replication = {'class': 'NetworkTopologyStrategy', 'us-east': '3'} AND durable_writes = true;
+
+#
+# Table info
+#
+table: netflix_test2
+
+
+#USE summit_stress;
+table_definition: |
+
+  CREATE TABLE netflix_test2 (
+   rowkey text,
+   C0 blob,
+   C1 blob,
+   C2 blob,
+   C3 blob,
+   C4 blob,
+   PRIMARY KEY (rowkey))
+   WITH compression={'sstable_compression': ''};
+
+
+columnspec:
+    - name: rowkey
+      size: fixed(10)
+      population: uniform(1..100B)
+    - name: C0
+      size: fixed(34)
+    - name: C1
+      size: fixed(34)
+    - name: C2
+      size: fixed(34)
+    - name: C3
+      size: fixed(34)
+    - name: C4
+      size: fixed(34)
+
+
+#
+# Insert settings
+#
+
+insert:
+    partitions: fixed(1)
+    select: fixed(1)/1
+    batchtype: UNLOGGED
+
+#
+# A list of queries you wish to run against the schema
+#
+queries:
+   simple:
+     cql: select * from netflix_test2 where rowkey = ? LIMIT 1;
+     fields: samerow             # samerow or multirow (select arguments from the same row, or randomly from all rows in the partition)
+
+
+
+

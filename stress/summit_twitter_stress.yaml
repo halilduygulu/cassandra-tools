@@ -1,0 +1,50 @@
+
+keyspace: summit_stress
+
+#
+# The CQL for creating a table you wish to stress (optional if it already exists)
+#
+keyspace_definition: |
+ CREATE KEYSPACE summit_stress WITH replication = {'class': 'NetworkTopologyStrategy', 'us-east': '3'} AND durable_writes = true;
+
+#
+# Table info
+#
+table: timeline
+
+
+#USE summit_stress;
+table_definition: |
+ CREATE TABLE timeline (
+    username  text,
+    tweetid   timeuuid,
+    posted_by text,
+    body      text,
+    PRIMARY KEY(username, tweetid)
+  );
+columnspec:
+    - name: username
+      size: gaussian(20..50)
+      population: uniform(1..10B)
+    - name: tweetid
+      cluster: fixed(500)
+    - name: posted_by
+      size: gaussian(20..50)
+    - name: body
+      size: gaussian(40..140))
+
+#
+# Insert settings
+#
+insert:
+    partitions: fixed(1)
+    select: fixed(1)/500
+    batchtype: UNLOGGED
+
+#
+# A list of queries you wish to run against the schema
+#
+queries:
+   simple:
+     cql: select * from timeline where username = ? LIMIT 10;
+     fields: multirow             # samerow or multirow (select arguments from the same row, or randomly from all rows in the partition)

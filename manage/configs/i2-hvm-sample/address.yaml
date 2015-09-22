@@ -1,0 +1,2 @@
+stomp_interface: 10.10.10.XX
+hosts: ["$HOST"]

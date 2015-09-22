@@ -1,0 +1,47 @@
+
+keyspace: summit_stress
+
+#
+# The CQL for creating a table you wish to stress (optional if it already exists)
+#
+keyspace_definition: |
+ CREATE KEYSPACE summit_stress WITH replication = {'class': 'NetworkTopologyStrategy', 'us-east': '3'} AND durable_writes = true;
+
+#
+# Table info
+#
+table: temperature
+
+
+#USE summit_stress;
+table_definition: |
+  CREATE TABLE temperature (
+  weatherstation_id text,
+  event_time timestamp,
+  temperature text,
+  PRIMARY KEY (weatherstation_id,event_time)
+  );
+
+columnspec:
+    - name: weatherstation_id
+      size: gaussian(10..80)
+      population: uniform(1..100B)
+    - name: event_time
+      cluster: fixed(1000)
+    - name: temperature
+      size: fixed(20)
+#
+# Insert settings
+#
+insert:
+    partitions: fixed(1)
+    select: fixed(1)/1000
+    batchtype: UNLOGGED
+
+#
+# A list of queries you wish to run against the schema
+#
+queries:
+   simple:
+     cql: select * from temperature where weatherstation_id = ? LIMIT 10;
+     fields: multirow             # samerow or multirow (select arguments from the same row, or randomly from all rows in the partition)

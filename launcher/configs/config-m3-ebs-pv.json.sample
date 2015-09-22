@@ -1,0 +1,34 @@
+{
+    "Verbose": true,
+    "Region": "us-east-1",
+    "AmiId": "ami-00000000",
+    "InstanceType": "m3.2xlarge",
+    "EphemeralRaid": true,
+    "EBSRaid": false,
+    "InVpc": true,
+    "SecurityGroups":
+    [
+        "sg-00000000",
+        "sg-11111111"
+    ],
+    "Tags":
+    {
+        "Owner": "your.name",
+        "Name": "CASSANDRA-SUMMIT-DEV-M3EBS-PVM"
+    },
+    "SshKeys":
+    {
+      "KeyPairName": "our-aws-key"
+    },
+    "Subnets": {
+        "us-east-1a": {
+          "subnet": "subnet-33333333"
+        },
+         "us-east-1b": {
+          "subnet": "subnet-44444444"
+        },
+        "us-east-1c": {
+          "subnet": "subnet-55555555"
+        }
+    }
+}
