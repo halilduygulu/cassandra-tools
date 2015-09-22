@@ -54,7 +54,6 @@ def AwsConnect(configSpec,awsKey,awsSecret):
 
 
 def AwsStartFromConfigSpec(args, configSpec):
-    global settings,aws, log
 
 
     if configSpec['Verbose']:
@@ -88,7 +87,6 @@ def AwsStartFromConfigSpec(args, configSpec):
         ebsOptimized = True
         deviceMap = BlockDeviceMapping()
         if configSpec['InstanceType'] == 'm3.2xlarge':
-            print "Mapping EBS block devices for m3.2xlarge"
             ep0 = BlockDeviceType()
             ep0.ephemeral_name = 'ephemeral0'
             deviceMap['/dev/xvdb'] = ep0
@@ -97,7 +95,6 @@ def AwsStartFromConfigSpec(args, configSpec):
             deviceMap['/dev/xvdc'] = ep1
 
         if configSpec['InstanceType'] == 'c3.4xlarge':
-            print "Mapping EBS block devices for c3.4xlarge"
             ep0 = BlockDeviceType()
             ep0.ephemeral_name = 'ephemeral0'
             deviceMap['/dev/xvdb'] = ep0
@@ -158,18 +155,12 @@ def AwsStartFromConfigSpec(args, configSpec):
 
     subnet = configSpec['Subnets'][aws_az]['subnet']
 
-    log.info("Using AZ: {0}".format(aws_az))
-
     try:
         log.info("Launching in AZ: {0}".format(aws_az))
         if args.dryrun == True:
           log.warn("DRY RUN, NOT LAUNCHING....")
           sys.exit()
         else:
-          print "DEVICE MAPPING"
-          print deviceMap
-          print
-          #sys.exit()
           reservation = conn.run_instances(
                                          ami_image,
                                          placement=aws_az,
@@ -190,8 +181,7 @@ def AwsStartFromConfigSpec(args, configSpec):
 
 
     except Exception as e:
-        print "Got reservation error"
-        print e
+        log.error("Got reservation error", e)
         return
 
 
@@ -199,10 +189,6 @@ def AwsStartFromConfigSpec(args, configSpec):
         log.info('Waiting for VM instances to start...')
 
     time.sleep(15)
-
-    #for ri in reservation.instances:
-    #    pprint.pprint(ri.__dict__)
-
 
     instanceSetInfo = []
     instanceIds = [] # stores a list of all the active instanceids we can use to attach ebs volumes to
@@ -220,9 +206,9 @@ def AwsStartFromConfigSpec(args, configSpec):
             status = instance.update()
 
         if configSpec['Verbose']:
-            print "Instance ID: %s" % instance.id
-            print "Instance Private IP: %s" % instance.private_ip_address
-            print "Instance Public DNS: %s" % instance.public_dns_name
+            log.info("Instance ID: %s" % instance.id)
+            log.into("Instance Private IP: %s" % instance.private_ip_address)
+            log.info("Instance Public DNS: %s" % instance.public_dns_name)
 
         if isFirst:
             firstNodeIp = instance.private_ip_address
@@ -255,7 +241,6 @@ def AwsStartFromConfigSpec(args, configSpec):
 
 
 def Run(args):
-    global settings
     configFileName = settings['json']
     if len(configFileName) < 3:
         sys.exit('Bad configFileName: %s' % configFileName)
@@ -282,11 +267,10 @@ def Run(args):
     AwsStartFromConfigSpec(args, configSpec)
 
     if configSpec['Verbose']:
-         log.info("Done starting Cassandra Cluster!")
+         log.info("Done provisioning instances")
 
 
 def check_for_errors(args):
-    global aws
     if args.nodes == 0:
       log.error("You need to at least launch one node, you have no nodes being launched")
       sys.exit()
@@ -302,7 +286,6 @@ def check_for_errors(args):
 
 def set_options(args):
   global settings
-  log.info("setting options based on params..." )
   settings['json'] = "configs/config-%s.json" % args.config
 
   settings['total-nodes'] = args.nodes

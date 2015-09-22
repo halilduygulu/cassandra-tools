@@ -1,7 +1,7 @@
 Cassandra-tools
 =========================
 
-This repository is a collection of automation scripts that allow you to launch and test different Cassandra configurations in AWS. You can have multiple profiles to test against to see the difference in performance between an 8GB heap and a 12GB heap for example, or making multiple changes to a yaml file vs a control cluster to see if performance or stability improved with your changes. 
+This repository is a collection of automation scripts that allow you to launch and test different Cassandra configurations. You can have multiple profiles to test against to see the difference in performance between an 8GB heap and a 12GB heap for example, or making multiple changes to a yaml file vs a control cluster to see if performance or stability improved with your changes. 
 
 Cassandra tools pulled a lot of bootstrapping and node configuration from the DataStax AMI Builder tool and simplified it via Fabric so that you have more control over the changes you want to make to your cluster and giving you a clear view on what is going on. 
 
@@ -39,7 +39,6 @@ Since this is for AWS it's expected that you have your keys exported in your she
 
     export AWS_ACCESS_KEY_ID=YOURKEY
     export AWS_SECRET_ACCESS_KEY=YOURSECRET
-    export AWS_DEFAULT_REGION=us-west-2
 
 
 #### Ubuntu Note ####
@@ -54,6 +53,18 @@ Launching
 Now let's get to launching. It's assumed that you have an AMI you want to use as your base. It can just be a base Ubuntu AMI from the AWS console for example. Once you have that AMI you'll need to configure a launch json file that has the ami id, security groups you want applied, tags, launch key, etc... so launcher.py knows how to build your instances. 
 
 Take a look at the configs/*.sample files for examples of where to plug your information in. This also assumes you're in a VPC. If you're not feel free to submit a pull request to support non VPC launching or just launch your nodes via the AWS console or CLI. Launcher does nothing fancy and doesn't bootstrap anything. It just provisions instances, which you can do yourself via the AWS console. 
+
+Copy a profile sample to work with
+
+    cd launcher/configs/
+    cp c4-highperf.json.sample c4-highperf.json
+    
+
+Now edit that profile with your AMI ID to use, tags you want on the instances, security groups, subnets to launch in, etc...
+
+You can see the AMI ID in this screenshot as ami-d05e75b8
+
+![AMI](https://dl.dropboxusercontent.com/u/9507712/cassandra/ami.png)
 
 Assuming you're using the launcher script, let's fire up 3 nodes in us-east-1a using the c4-highperf profile that you created from a .sample file. 
 
@@ -104,6 +115,8 @@ To test out your running system (assuming you ran the pip install -r requirement
 
 That command will run all the apt-get update/installs, install java, format the EBS volume using XFS, turn off swap, etc.... One thing to note is that the fab command will always prompt you as to which hostfile you want to run. There are times you just want to bootstrap a few nodes and not the whole cluster. So you can just put those ips anywhere like /tmp/newips.txt and use type in that file in the prompt instead. 
 
+Note that at time of writing it installs Cassandra Community version 2.1.9, if you're bored, submit a PR to make that configurable from the profile :)
+
 Once that is complete you'll want to set your seed nodes for that cluster. So pick one IP or a comma separated list and run
 
     fab -u ubuntu  set_seeds:config=c4-highperf,seeds='10.10.100.XX'
@@ -126,6 +139,11 @@ For a list of all the commands available you can ask fab to list the tasks
 Other common tasks will be changing yaml files or cassandra-env settings for testing different GC combinations. For that you would make your changes, save the files and run
 
     fab -u ubuntu  configs:config=c4-highperf
+    
+
+You can also use the free form cmd task. For example, want to see all the java versions across your cluster?
+
+    fab -u ubuntu cmd:config=c4-highperf,cmd="java -version 2>&1 | grep version  | awk '{print \$NF}'"
 
 Running Stress
 --------
