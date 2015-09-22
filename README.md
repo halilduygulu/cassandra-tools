@@ -144,6 +144,12 @@ Other common tasks will be changing yaml files or cassandra-env settings for tes
 You can also use the free form cmd task. For example, want to see all the java versions across your cluster?
 
     fab -u ubuntu cmd:config=c4-highperf,cmd="java -version 2>&1 | grep version  | awk '{print \$NF}'"
+    
+Or see how much "MAX HEAP SIZE" your nodes are configured for
+
+    fab -u ubuntu cmd:config=c4-highperf,cmd="grep MAX_HEAP_SIZE /etc/cassandra/cassandra-env.sh | grep G"
+    
+The cmd task runs in parallel so going over 60+ nodes is within seconds. 
 
 Running Stress
 --------
@@ -191,6 +197,14 @@ Once the files are uploaded you're ready to run stress. Using csshX in the red a
 
     python runstress.py --profile=stress --seednode=10.10.10.XX --nodenum=1
 
+
+That will run the following cmd under the covers
+
+    /home/ubuntu/apache-cassandra-2.1.5/tools/bin/cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\(insert=1\) no-warmup  -pop seq=1..100000000 -mode native cql3 -node 10.10.10.XX -rate threads=1000  -errors ignore
+    
+
+Type python runstress.py -h 
+for all the available options to pass like threads, seednode, etc...
 
 Place the correct IP there and you should be running stress against your new cluster. Dig around the runstress.py file to see what other profiles you can run, or add your own. A nice pull request would be to abstract that away to a json file or equiv so that we wouldn't have to touch the python file to add or tweak profiles. 
 
