@@ -207,7 +207,7 @@ def AwsStartFromConfigSpec(args, configSpec):
 
         if configSpec['Verbose']:
             log.info("Instance ID: %s" % instance.id)
-            log.into("Instance Private IP: %s" % instance.private_ip_address)
+            log.info("Instance Private IP: %s" % instance.private_ip_address)
             log.info("Instance Public DNS: %s" % instance.public_dns_name)
 
         if isFirst:
@@ -307,8 +307,8 @@ requirements:
   - boto is required to be installed to run this and fabric
   - pip install -r requirements.txt
 
-launch 1 cassandra node into us-east-1a
-python launch.py launch --env=c4-ebs-hvm --cass=1 --dryrun --az=us-east-1a
+launch 3 cassandra node into us-east-1a
+python launch.py launch --config=c4-highperf --nodes=3 --az=us-east-1a
 
 
 todo get balanced working to say --balanced and 60 nodes and it auto creates reservations in n azs from the config
