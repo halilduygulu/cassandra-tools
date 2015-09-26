@@ -402,6 +402,16 @@ def _install_cassandra_2_1():
     run('echo "root - as unlimited" | sudo tee -a /etc/security/limits.d/cassandra.conf')
 
 
+@task
+@parallel
+def _installjava():
+    #install java
+    sudo("echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections")
+    sudo("add-apt-repository -y ppa:webupd8team/java")
+    sudo("apt-get update")
+    sudo("apt-get install -y oracle-java8-installer oracle-java8-set-default")
+    sudo("update-java-alternatives -s java-8-oracle")
+
 
 @task
 @parallel
@@ -418,11 +428,8 @@ def _bootstrapcass():
 
     # install sysadmin tools
     sudo("apt-get -y install --fix-missing iftop sysstat htop s3cmd nethogs nmon dstat tree collectd collectd-utils")
-    sudo("echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections")
-    sudo("add-apt-repository -y ppa:webupd8team/java")
-    sudo("apt-get update")
-    sudo("apt-get install -y oracle-java8-installer oracle-java8-set-default")
-    sudo("update-java-alternatives -s java-8-oracle")
+
+    execute(_installjava)
 
     #fix clocksource -> network performance
     sudo("echo tsc > /sys/devices/system/clocksource/clocksource0/current_clocksource")
@@ -578,23 +585,27 @@ def _maskCPU():
 @parallel
 def _putstress():
      ''' puts latest stress files on stress machines '''
+     ok_extensions = [".py", ".json", ".yaml"]
      pattern = "../stress/*"
+
      files = glob.glob(pattern)
      for src in files:
         filename = os.path.basename(src)
+        tmp, fileExt = os.path.splitext(filename)
         dest_file = "/home/ubuntu/{}".format(filename)
-        if ".py" in src or ".yaml" in src:
+        if fileExt in ok_extensions:
             put(src, dest_file)
 
 @task
 @parallel
 def _installstress():
      ''' installs a stress files on stress machines '''
-     src = "../stress/CASSANDRA-STRESS-2-1.tgz"
+     src = "../stress/CASSANDRA-STRESS-2.1.9.tgz"
      dest = "~/STRESS.tgz"
      put(src, dest)
      run("tar -xzf ~/STRESS.tgz")
      execute(_putstress)
+     execute(_installjava)
 
 
 @task

@@ -155,12 +155,17 @@ Running Stress
 --------
 
 This repo also has support for running your stress machines. The workflow I was using was the following
-
 1. Launch stress instances
 2. Set hostfile.txt in stress/hostfile.txt with the IP address of stress machines
 3. Bootstrap stress machines with stress 2.1 code and yaml files
 4. Use csshX to view all the stress machines in multiple terminals
 5. Tweak yaml files and re-push stress to test various configs
+
+A note on stress is that there is a 70MB compiled stress tarball included so rather than push that up on every node I'll run
+
+    fab -u ubuntu installstress
+    
+which will install stress on a single node (if just one is in your hostfile) then create an AMI of that node to launch more stress boxes to make things a bit faster. 
 
 
 ### csshX ###
@@ -206,6 +211,5 @@ That will run the following cmd under the covers
 Type python runstress.py -h 
 for all the available options to pass like threads, seednode, etc...
 
-Place the correct IP there and you should be running stress against your new cluster. Dig around the runstress.py file to see what other profiles you can run, or add your own. A nice pull request would be to abstract that away to a json file or equiv so that we wouldn't have to touch the python file to add or tweak profiles. 
-
+Place the correct IP there and you should be running stress against your new cluster. Dig around the runstress.py file to see what other profiles you can run, or add your own. 
 

@@ -1,0 +1,8 @@
+{
+  "weather": "{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_weather_stress.yaml ops\\(insert=1\\) no-warmup {popseq}  -mode native cql3 -node {seednode} -rate threads={threads} -errors ignore",
+  "weather95": "{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_weather_stress.yaml ops\\(insert=19,simple=1\\) no-warmup {popseq}  -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore",
+  "stress": "{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\\(insert=1\\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore",
+  "stress95": "{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\\(insert=19,simple=1\\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore",
+  "stress10": "{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\\(insert=1,simple=9\\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore",
+  "stressread": "{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\\(simple=1\\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore"
+}

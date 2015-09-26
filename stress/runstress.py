@@ -5,6 +5,7 @@ import select
 import time
 import signal
 import argparse
+import json
 
 
 __author__ = "Jim Plush"
@@ -14,40 +15,16 @@ __version__ = "1.0.0"
 __maintainer__ = "Jim Plush"
 __status__ = "Production"
 
-stress_location = '/home/ubuntu/apache-cassandra-2.1.5/tools/bin/'
-
-
-#stress for weather station 95% write %5 read load
-cmd_weather_95 = '{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_weather_stress.yaml ops\(insert=19,simple=1\) no-warmup {popseq}  -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore'
-
-# weather pure write
-cmd_weather = '{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_weather_stress.yaml ops\(insert=1\) no-warmup {popseq}  -mode native cql3 -node {seednode} -rate threads={threads} -errors ignore'
-
-cmd_stress = '{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\(insert=1\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore'
-
-cmd_stress95 = '{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\(insert=19,simple=1\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore'
-
-# 10% writes, 90% reads
-cmd_stress10 = '{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\(insert=1,simple=9\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore'
-
-# 100% read
-cmd_stressread = '{stress}cassandra-stress user duration=100000m cl=ONE profile=/home/ubuntu/summit_stress.yaml ops\(simple=1\) no-warmup  {popseq} -mode native cql3 -node {seednode} -rate threads={threads}  -errors ignore'
-
-
-profiles = {
-    "weather": cmd_weather,
-    "weather95": cmd_weather_95,
-    "stress": cmd_stress,
-    "stress95": cmd_stress95,
-    "stress10": cmd_stress10,
-    "stressread": cmd_stressread
-}
-
+stress_location = '/home/ubuntu/tools/bin/'
 
 restarts = 0
 
 def runstress(args):
     global restarts
+
+    #get list of profiles we can run
+    with open('profiles.json') as data_file:
+       profiles = json.load(data_file)
 
     if args.profile not in profiles:
         print "Invalid profile"
