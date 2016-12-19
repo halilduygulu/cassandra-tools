@@ -1,7 +1,7 @@
 {
     "Verbose": true,
     "Region": "eu-west-1",
-    "AmiId": "ami-d05e75b8",
+    "AmiId": "ami-b9b394ca",
     "InstanceType": "c4.2xlarge",
     "EphemeralRaid": false,
     "EBSRaid": true,
