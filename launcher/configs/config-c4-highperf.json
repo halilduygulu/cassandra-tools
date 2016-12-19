@@ -1,0 +1,30 @@
+{
+    "Verbose": true,
+    "Region": "eu-west-1",
+    "AmiId": "ami-d05e75b8",
+    "InstanceType": "c4.2xlarge",
+    "EphemeralRaid": false,
+    "EBSRaid": true,
+    "InVpc": true,
+    "SecurityGroups": 
+    [
+        "sg-916706f7"
+    ],
+    "Tags":
+    {
+        "Owner": "Halil",
+        "Name": "CASSANDRA-Cluster-Test"
+    },
+    "SshKeys":
+    {
+      "KeyPairName": "kendi-hesabim"
+    },
+    "Subnets": {
+        "eu-west-1a": {
+          "subnet": "subnet-71085307"
+        },
+         "eu-west-1b": {
+          "subnet": "subnet-50c5a608"
+        }
+    }
+}
